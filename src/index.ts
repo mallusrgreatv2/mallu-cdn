@@ -133,6 +133,11 @@ fastify.post("/upload", async (req: FastifyRequest, reply: FastifyReply) => {
       .send({ error: "Only one file is allowed, none uploaded" });
   }
 });
+const port = Number(process.env.PORT) || 3000;
 fastify.listen({
-  port: 3000,
+  port,
+});
+fastify.listen((e, addr) => {
+  if (e) console.error(e);
+  console.log(addr + `:${port}`);
 });
