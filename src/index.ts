@@ -136,6 +136,7 @@ fastify.post("/upload", async (req: FastifyRequest, reply: FastifyReply) => {
 const port = Number(process.env.PORT) || 3000;
 fastify.listen({
   port,
+  host: "0.0.0.0",
 });
 fastify.listen((e, addr) => {
   if (e) console.error(e);
