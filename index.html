@@ -1,0 +1,19 @@
+<form method="POST" action="http://localhost:3000/login">
+  <label>Password:</label>
+  <input type="password" name="password" required />
+  <button type="submit">Login</button>
+</form>
+
+<form
+  action="http://localhost:3000/upload"
+  method="POST"
+  enctype="multipart/form-data"
+>
+  <label for="customFilename">Custom Filename:</label>
+  <input type="text" name="customFilename" id="customFilename" />
+
+  <label for="file">Choose File:</label>
+  <input type="file" name="file" id="file" required />
+
+  <button type="submit">Upload</button>
+</form>

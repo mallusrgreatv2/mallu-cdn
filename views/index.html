@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload | mallu-cdn</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #74abe2 0%, #5563de 100%);
+        font-family: "Roboto", sans-serif;
+      }
+      .card {
+        background: #fff;
+        padding: 40px 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        width: 340px;
+        text-align: center;
+      }
+      .card h1 {
+        margin-bottom: 20px;
+        font-weight: 500;
+        color: #333;
+      }
+      .card input[type="text"] {
+        width: 100%;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 30px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+      }
+      .card input[type="text"]:focus {
+        border-color: #5596e6;
+        outline: none;
+      }
+      .file-picker-container {
+        width: 100%;
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .file-picker-label {
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: #4faad6;
+        color: white;
+        font-size: 16px;
+        border-radius: 30px;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        transition: background-color 0.3s ease;
+      }
+      .file-picker-label:hover {
+        background-color: #3b8cb3;
+      }
+      .file-picker-input {
+        display: none;
+      }
+      .upload-button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 30px;
+        background-color: #27ae60;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .upload-button:hover {
+        background-color: #1e8449;
+      }
+      .message {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #444;
+        word-break: break-word;
+      }
+      .message.error {
+        color: #c0392b;
+      }
+      .message.success {
+        color: #27ae60;
+      }
+      .filename {
+        position: relative;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .filename input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 30px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      .filename button {
+        position: absolute;
+        top: -10px;
+        right: 0;
+        width: 15%;
+        height: 64%;
+        padding: 5px;
+        font-size: medium;
+        border: none;
+        border-radius: 50%;
+        background-color: #f39c12;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .filename button:hover {
+        background-color: #e67e22;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Upload File</h1>
+      <form id="uploadForm">
+        <div class="file-picker-container">
+          <label for="fileInput" class="file-picker-label">Choose a file</label>
+          <input
+            type="file"
+            name="file"
+            id="fileInput"
+            required
+            class="file-picker-input"
+          />
+        </div>
+        <div class="filename">
+          <input
+            type="text"
+            name="customFilename"
+            id="customFilename"
+            placeholder="Optional custom name (no extension)"
+          />
+          <button
+            type="button"
+            id="diceButton"
+            style="background-color: #f39c12; margin-top: 10px"
+          >
+            🎲
+          </button>
+        </div>
+        <button type="submit" class="upload-button">Upload</button>
+      </form>
+      <div id="msg" class="message"></div>
+    </div>
+
+    <script>
+      const form = document.getElementById("uploadForm");
+      const msgDiv = document.getElementById("msg");
+      const fileInput = document.getElementById("fileInput");
+      const filePickerLabel = document.querySelector(".file-picker-label");
+      const customFilenameInput = document.getElementById("customFilename");
+      const diceButton = document.getElementById("diceButton");
+
+      function generateRandomString() {
+        const characters =
+          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let result = "";
+        for (let i = 0; i < 6; i++) {
+          result += characters.charAt(
+            Math.floor(Math.random() * characters.length)
+          );
+        }
+        return result;
+      }
+
+      diceButton.addEventListener("click", () => {
+        const randomFilename = generateRandomString();
+        customFilenameInput.value = randomFilename;
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        msgDiv.textContent = "Uploading…";
+        msgDiv.className = "message";
+
+        const data = new FormData(form);
+
+        try {
+          const res = await fetch("/upload", {
+            method: "POST",
+            body: data,
+            credentials: "include",
+          });
+          const json = await res.json();
+
+          if (!res.ok) {
+            msgDiv.textContent = json.error || "Upload failed.";
+            msgDiv.classList.add("error");
+          } else {
+            msgDiv.textContent = `✅ ${json.status}: ${json.fileName}`;
+            msgDiv.classList.add("success");
+            form.reset();
+          }
+        } catch (err) {
+          msgDiv.textContent = "Network error.";
+          msgDiv.classList.add("error");
+        }
+      });
+
+      fileInput.addEventListener("change", () => {
+        const fileName = fileInput.files[0]?.name || "No file chosen";
+        filePickerLabel.textContent = fileName;
+      });
+    </script>
+  </body>
+</html>
